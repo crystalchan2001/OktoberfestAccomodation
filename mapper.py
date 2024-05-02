@@ -16,19 +16,23 @@ class Mapper:
         if homeLocation:
             if homeLocation != "Showing 0 points of interest.":
                 self.coordsCalculated = self.calculateCoords(homeLocation) 
-                if self.coordsCalculated != (0,0):
+                if self.coordsCalculated:
                     self.distanceName = self.calculateDistance(self.coordsCalculated)
                     self.commuteName = self.calculateCommute(homeLocation)
-        else:
-            self.distance = None
-            self.commute = None
+
 
     def getDistance(self):
-        return self.distance
-    
+        try:
+            return self.distance
+        except AttributeError:
+            return None
+
     def getCommute(self):
-        return self.commute
-    
+        try:
+            return self.commute
+        except AttributeError:
+            return None
+        
     def getCommuteFromName(self):
         try:
             return self.commuteName
@@ -51,13 +55,16 @@ class Mapper:
             location = (location.latitude,location.longitude)
             print(f"The calculated coords of {homeLocation} are ({location.latitude,location.longitude})")
         except AttributeError:
-            location = (0,0)
+            location = None
         return location
 
     def calculateDistance(self, airbnb):
         distanceKm = geodesic(airbnb, self.coordsOktoberfest).km
         print(f"The distance to Oktoberfest is {distanceKm}Km")
-        return round(distanceKm, 2)
+        distance = round(distanceKm, 2)
+        if distanceKm > 10:
+            distance = None
+        return distance
 
     def calculateCommute(self, start):
         baseUrl = "https://maps.googleapis.com/maps/api/directions/json"
