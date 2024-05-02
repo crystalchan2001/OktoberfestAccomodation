@@ -1,5 +1,3 @@
-import time
-from datetime import date
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -13,7 +11,8 @@ driver = None
 class Scraper:
 
     def __init__(self, guests, rooms, checkin, checkout, budget, bathrooms, favourite, entireHome):
-        self.delay = 20
+        self.shortDelay = 5
+        self.longDelay = 20
         self.driver = self.startAndGetDriver(guests, rooms, checkin, checkout, budget, bathrooms, favourite, entireHome)
         self.properties = self.findProperties()
         self.done()
@@ -21,7 +20,8 @@ class Scraper:
     def startAndGetDriver(self, guests, rooms, checkin, checkout, budget, bathrooms=1, favourite="true", entireHome="false"):
         options = webdriver.EdgeOptions()
         options.add_argument("--headless=new")
-        driver = webdriver.Edge(options=options)   
+        # driver = webdriver.Edge(options=options)   
+        driver = webdriver.Edge()
         #format of date is 2024-09-21 
         entireHome = """room_types%5B%5D=Entire%20home%2Fapt&""" if entireHome else ""
         url = f"""https://www.airbnb.co.uk/s/Munich--Germany/homes?adults={guests}&place_id=ChIJ2V-Mo_l1nkcRfZixfUq4DAE&refinement_paths%5B%5D=%2Fhomes
@@ -31,12 +31,11 @@ class Scraper:
                 &min_bedrooms={rooms}&min_bathrooms={bathrooms}&{entireHome}guest_favorite={favourite}"""
         driver.get(url)
         print(url)
-        time.sleep(3)
         return driver
     
     def closeTranslationPopup(self):
         try:
-            button = WebDriverWait(self.driver, self.delay).until(EC.presence_of_element_located((By.XPATH, "//button[@aria-label='Close']")))
+            button = WebDriverWait(self.driver, self.shortDelay).until(EC.presence_of_element_located((By.XPATH, "//button[@aria-label='Close']")))
             button.click()
             print("Translation popup closed")
         except Exception:
@@ -44,7 +43,7 @@ class Scraper:
 
     def closeCookies(self):
         try:
-            button = WebDriverWait(self.driver, self.delay).until(EC.presence_of_element_located((By.XPATH, "//button[text()='Continue without accepting']")))
+            button = WebDriverWait(self.driver, self.shortDelay).until(EC.presence_of_element_located((By.XPATH, "//button[text()='Continue without accepting']")))
             button.click()
             print("Cookies popup closed")
         except Exception:
@@ -53,57 +52,62 @@ class Scraper:
     def getLocation(self):
         location = None
         try:
-            map = self.driver.find_element(By.CLASS_NAME, '_384m8u')
+            map = WebDriverWait(self.driver, self.longDelay).until(EC.presence_of_element_located((By.CLASS_NAME, '_1ctob5m')))
             ActionChains(self.driver).move_to_element(map).perform()
-            map2 = map.find_element(By.XPATH, "div[@data-testid='map/GoogleMap']")
-            locationString = map2.find_element(By.TAG_NAME, 'span')
-            location = locationString.text[11:]
+            map2 = WebDriverWait(map, self.longDelay).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[data-testid='map/GoogleMap']>span")))
+            location = map2.text[11:]
         except TimeoutException:
-            print("Timeout waiting for element:")
+            print("Timeout waiting for location name.")
         except NoSuchElementException:
-            print("Element not found:")
+            print("Element location name not found.")
         except Exception as e:
-            print("An exception occurred:", e.__cause__)
+            print("An exception occurred while locating location name:", e.__class__)
         return location
     
     def getCoords(self):
         coords = None
         try:
             xpath = "//a[@title='Report errors in the road map or imagery to Google']"
-            a = WebDriverWait(self.driver, self.delay).until(EC.presence_of_element_located((By.XPATH, xpath)))
+            a = WebDriverWait(self.driver, self.longDelay).until(EC.presence_of_element_located((By.XPATH, xpath)))
             href = a.get_attribute('href')
             latlong = re.search(r"@([\d.-]+),([\d.-]+),", href)
             if latlong:
                 coords = (latlong.group(1), latlong.group(2))
         except TimeoutException:
-            print("Timeout waiting for element:")
+            print("Timeout waiting for coordinates.")
         except NoSuchElementException:
-            print("Element not found:")
+            print("Element coordinates not found.")
         except Exception as e:
-            print("An exception occurred:", e.__cause__)
+            print("An exception occurred while locating coordinates:", e.__class__)
         return coords
 
     def getPrice(self):
-        price = None
+        price = 0
         try:
-            element = WebDriverWait(self.driver, self.delay).until(EC.presence_of_element_located((By.CLASS_NAME, "_1y74zjx")))
+            element = WebDriverWait(self.driver, self.shortDelay).until(EC.presence_of_element_located((By.CLASS_NAME, "_1y74zjx")))
             priceStr = element.get_attribute("innerText")
             price = int(priceStr[1:].replace(',', ''))
+        except TimeoutException:
+            print("Timeout waiting for price.")
+        except NoSuchElementException:
+            print("Element price not found.")
         except Exception as e:
-            print(e) 
-            price = 0
+            print("An exception occurred while locating price:", e.__class__)
         return price
     
     def getTotal(self):
-        total = None
+        total = 0
         try:
             xpath = "//span[@class='_1qs94rc']//span//span[@class='_j1kt73']"
-            element = WebDriverWait(self.driver, self.delay).until(EC.presence_of_element_located((By.XPATH, xpath)))
+            element = WebDriverWait(self.driver, self.shortDelay).until(EC.presence_of_element_located((By.XPATH, xpath)))
             totalStr = element.get_attribute("innerText")
             total = int(totalStr[1:].replace(',', ''))
+        except TimeoutException:
+            print("Timeout waiting for total.")
+        except NoSuchElementException:
+            print("Element total not found.")
         except Exception as e:
-            print(e) 
-            total = 0
+            print("An exception occurred while locating total:", e.__class__)
         return total
 
     def getScreenshot(self, index):
@@ -116,9 +120,9 @@ class Scraper:
         urls = []
         try:
             xpath = "//div[@itemprop='itemListElement']//meta[@itemprop='url']"
-            listings = WebDriverWait(self.driver, self.delay).until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
+            listings = WebDriverWait(self.driver, self.longDelay).until(EC.presence_of_all_elements_located((By.XPATH, xpath)))
         except Exception as e:
-            print(e)
+            print("An exception occured while locating urls: ", e.__class__)
         if listings:
             print(f"Found {len(listings)} listings.")
             for li in listings:
@@ -136,7 +140,8 @@ class Scraper:
             idx = 0
             for url in urls:
                 self.driver.get(f"https://{url}")
-                self.closeTranslationPopup()
+                if idx == 0:
+                    self.closeTranslationPopup()
                 self.closeCookies()
                 screenshotPath = self.getScreenshot(idx)
                 price = self.getPrice()
@@ -144,7 +149,7 @@ class Scraper:
                 location = self.getLocation()
                 coords = self.getCoords()
                 properties.append(Property(url, price, total, coords, location, screenshotPath))
-                print(f"Price: {price} Total: {total} Location Name: {location} Location Coordinates: {coords}")
+                print(f"Price: {price} Total: {total} POI: {location} Coordinates: {coords}")
                 idx = idx+1
         else:
             print("No listings matched your criteria")
