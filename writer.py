@@ -1,7 +1,5 @@
 from docx import Document
-from docx.enum.text import WD_ALIGN_PARAGRAPH as WAP
 from docx.shared import Pt
-from datetime import date, datetime
 from docx.opc.constants import RELATIONSHIP_TYPE
 from docx.oxml.shared import OxmlElement, qn
 from docx.shared import RGBColor
