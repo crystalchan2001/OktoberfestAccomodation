@@ -10,7 +10,8 @@ favourite = "True"
 entireHome= "False"
 
 budget = 700
-emailTo = "wesleyboettcher06@gmail.com"
+# emailTo = "wesleyboettcher06@gmail.com"
+emailTo = "chan.cj@icloud.com"
 sendAsDoc = False
 
 scraper = Scraper(guests, rooms, checkin, checkout, budget, bathrooms, favourite, entireHome)
@@ -18,4 +19,4 @@ properties = scraper.getProperties()
 
 sender = Sender(properties, emailTo, sendAsDoc)
 
-print("Accommodation search completed and email sent!")
+print(f"Accommodation search completed and email sent to {emailTo}!")
