@@ -57,7 +57,7 @@ class Mapper:
     def calculateDistance(self, airbnb):
         distanceKm = geodesic(airbnb, self.coordsOktoberfest).km
         print(f"The distance to Oktoberfest is {distanceKm}Km")
-        return round(distanceKm, 3)
+        return round(distanceKm, 2)
 
     def calculateCommute(self, start):
         baseUrl = "https://maps.googleapis.com/maps/api/directions/json"
