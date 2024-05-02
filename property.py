@@ -13,7 +13,6 @@ class Property:
         self.total = total
         self.screenshotPath = path
 
-    
     def getUrl(self):
         return self.url
     
