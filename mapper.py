@@ -7,7 +7,7 @@ import requests
 class Mapper:
 
     def __init__(self, coords, homeLocation):
-        self.myKey = "AIzaSyCXppM7yRwYpAxbgB0Gu7AuFXPCSgf9PTY"
+        self.myKey = "myKeyRetractedForSecurity"
         self.coordsOktoberfest = (48.131489099999996,11.549755214131313)
         if coords:
             self.coordsAirbnb = f"{coords[0]},{coords[1]}"
