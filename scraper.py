@@ -11,8 +11,8 @@ driver = None
 class Scraper:
 
     def __init__(self, guests, rooms, checkin, checkout, budget, bathrooms, favourite, entireHome):
-        self.shortDelay = 5
-        self.longDelay = 20
+        self.shortDelay = 10
+        self.longDelay = 30
         self.driver = self.startAndGetDriver(guests, rooms, checkin, checkout, budget, bathrooms, favourite, entireHome)
         self.properties = self.findProperties()
         self.done()
@@ -20,10 +20,12 @@ class Scraper:
     def startAndGetDriver(self, guests, rooms, checkin, checkout, budget, bathrooms=1, favourite="true", entireHome="false"):
         options = webdriver.EdgeOptions()
         options.add_argument("--headless=new")
-        # driver = webdriver.Edge(options=options)   
-        driver = webdriver.Edge()
+        driver = webdriver.Edge(options=options)   
+        # driver = webdriver.Edge()
         #format of date is 2024-09-21 
-        entireHome = """room_types%5B%5D=Entire%20home%2Fapt&""" if entireHome else ""
+        bathroomsIn = 1 if not bathrooms else bathrooms
+        favouriteIn = "true" if not favourite else favourite
+        entireHome = """room_types%5B%5D=Entire%20home%2Fapt&""" if entireHome == "true" else ""
         url = f"""https://www.airbnb.co.uk/s/Munich--Germany/homes?adults={guests}&place_id=ChIJ2V-Mo_l1nkcRfZixfUq4DAE&refinement_paths%5B%5D=%2Fhomes
                 &checkin={checkin}&checkout={checkout}&tab_id=home_tab&query=Munich%2C%20Germany
                 &price_filter_input_type=2&price_filter_num_nights=6&channel=EXPLORE&price_max={budget}
