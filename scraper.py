@@ -10,12 +10,12 @@ import re
 driver = None
 class Scraper:
 
-    def __init__(self, guests, rooms, checkin, checkout, budget, bathrooms, favourite, entireHome):
+    def __init__(self, guests, rooms, checkin, checkout, budget, bathrooms, favourite, entireHome, travel, maxTravel):
         self.shortDelay = 10
         self.longDelay = 30
+        self.travel = travel
+        self.maxTravel = maxTravel
         self.driver = self.startAndGetDriver(guests, rooms, checkin, checkout, budget, bathrooms, favourite, entireHome)
-        self.properties = self.findProperties()
-        self.done()
 
     def startAndGetDriver(self, guests, rooms, checkin, checkout, budget, bathrooms=1, favourite="true", entireHome="false"):
         options = webdriver.EdgeOptions()
@@ -23,8 +23,6 @@ class Scraper:
         driver = webdriver.Edge(options=options)   
         # driver = webdriver.Edge()
         #format of date is 2024-09-21 
-        bathroomsIn = 1 if not bathrooms else bathrooms
-        favouriteIn = "true" if not favourite else favourite
         entireHome = """room_types%5B%5D=Entire%20home%2Fapt&""" if entireHome == "true" else ""
         url = f"""https://www.airbnb.co.uk/s/Munich--Germany/homes?adults={guests}&place_id=ChIJ2V-Mo_l1nkcRfZixfUq4DAE&refinement_paths%5B%5D=%2Fhomes
                 &checkin={checkin}&checkout={checkout}&tab_id=home_tab&query=Munich%2C%20Germany
@@ -32,7 +30,7 @@ class Scraper:
                 &search_type=filter_change&source=structured_search_input_header&ne_lat=48.17308416412205&ne_lng=11.600579336766344&sw_lat=48.10086724294256&sw_lng=11.513296081397073&zoom=13.269747639501245&zoom_level=13.269747639501245&search_by_map=true
                 &min_bedrooms={rooms}&min_bathrooms={bathrooms}&{entireHome}guest_favorite={favourite}"""
         driver.get(url)
-        print(url)
+        print("Called url " + url)
         return driver
     
     def closeTranslationPopup(self):
@@ -157,8 +155,16 @@ class Scraper:
             print("No listings matched your criteria")
         return properties
 
+    def filterProperties(self, properties):
+        filteredProperties = []
+        return filteredProperties
+
+    def sortProperties(self, properties):
+        sortedProperties = []
+        return sortedProperties
+    
     def getProperties(self):
-        return self.properties
+        return self.findProperties()
     
     def done(self):
         self.driver.quit()
