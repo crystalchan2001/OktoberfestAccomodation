@@ -5,10 +5,6 @@ class Property:
         self.url = url
         self.name = name
         self.mapper = Mapper(coords, name)
-        self.distance = self.mapper.getDistance()
-        self.commute = self.mapper.getCommute()
-        self.distanceName = self.mapper.getDistanceFromName()
-        self.commuteName = self.mapper.getCommuteFromName()
         self.pricePer = pricePer
         self.total = total
         self.screenshotPath = path
@@ -23,16 +19,16 @@ class Property:
             return None
         
     def getDistance(self):
-        return self.distance
+        return self.mapper.getDistance()
     
     def getCommute(self):
-        return self.commute
+        return self.mapper.getCommute()
 
     def getDistanceName(self):
-        return self.distanceName
+        return self.mapper.getDistanceFromName()
     
     def getCommuteName(self):
-        return self.commuteName
+        return self.mapper.getCommuteFromName()
     
     def getPricePer(self):
         return self.pricePer    
