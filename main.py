@@ -1,24 +1,26 @@
 from scraper import Scraper
 from sender import Sender
 import sys
-
+import win32api
 # guests = 1
 # rooms = 1
 # checkin = "2024-10-01"
 # checkout = "2024-10-07"
 # bathrooms = "1"
-# favourite = "True"
-# entireHome= "False"
+# travel = "commute"
+# maxTravel = "30"
+# favourite = "true"
+# entireHome= "false"
 
 # budget = 700
-# # emailTo = "wesleyboettcher06@gmail.com"
+# emailTo = "wesleyboettcher06@gmail.com"
 # emailTo = "chan.cj@icloud.com"
-# sendAsDoc = False
 
-# scraper = Scraper(guests, rooms, checkin, checkout, budget, bathrooms, favourite, entireHome)
+# scraper = Scraper(guests, rooms, checkin, checkout, budget, bathrooms, favourite, entireHome, travel, maxTravel)
 # properties = scraper.getProperties()
+# scraper.done()
 
-# sender = Sender(properties, emailTo, sendAsDoc)
+# sender = Sender(properties, emailTo)
 
 # print(f"Accommodation search completed and email sent to {emailTo}!")
 
@@ -32,13 +34,15 @@ def collectInput():
     bathrooms = sys.argv[6]
     favourite = sys.argv[7]
     entireHome = sys.argv[8]
-    frequency = sys.argv[9]
-    email = sys.argv[10]
+    travel = sys.argv[9]
+    maxTravel = sys.argv[10]
+    frequency = sys.argv[11]
+    email = sys.argv[12]
 
-    return [guests, rooms, checkin, checkout, budget, bathrooms, favourite, entireHome, frequency, email]
-
+    return [guests, rooms, checkin, checkout, budget, bathrooms, favourite, entireHome, travel, maxTravel, frequency, email]
 
 if __name__ == '__main__':
     variables = collectInput()
-    print(variables)
-    print("Hello world")
+    # print(variables)
+    # print("Hello world")
+    win32api.MessageBox(0, str(variables), 'Variables')
