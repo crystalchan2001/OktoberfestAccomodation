@@ -3,28 +3,20 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
-from writer import Writer
 from datetime import date
 import os
 
 class Sender:
 
-    def __init__(self, properties, emailTo, sendAsDoc):
+    def __init__(self, properties, emailTo):
         self.emailTo = emailTo
         self.msg = MIMEMultipart()
 
         self.font = "Calibri"
         self.fontSize = 14
 
-        if sendAsDoc:
-            self.writeDoc(properties, date)
-        else:
-            self.writeEmail(properties, emailTo)
+        self.writeEmail(properties, emailTo)
         self.sendEmail(emailTo)
-
-    def writeDoc(self, properties, path, date):
-        path = f"C:/Users/chanc/Documents/2024/OktoberfestAccomodation/{self.getDate()}-airbnb-search.docx"
-        writer = Writer(properties, path, date)
 
     def attachImage(self, property):
         path = property.getScreenshotPath()
