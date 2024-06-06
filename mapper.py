@@ -3,10 +3,10 @@ import requests
 
 class Mapper:
 
-    def __init__(self, coords, locationName):
-        self.myKey = "AIzaSyCXppM7yRwYpAxbgB0Gu7AuFXPCSgf9PTY"
+    def __init__(self, coords, homeLocation):
+        self.myKey = "myRetractedKey"
         self.coordsOktoberfest = (48.131489099999996,11.549755214131313)
-        self.locationName = locationName
+        self.locationName = homeLocation
         if coords:
             self.coordsAirbnb = f"{coords[0]},{coords[1]}"
         else:
