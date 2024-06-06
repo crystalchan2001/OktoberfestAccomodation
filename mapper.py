@@ -1,70 +1,66 @@
 from geopy.distance import geodesic
-from geopy.geocoders import Nominatim, options
-import ssl
-import certifi
 import requests
 
 class Mapper:
 
-    def __init__(self, coords, homeLocation):
+    def __init__(self, coords, locationName):
         self.myKey = "AIzaSyCXppM7yRwYpAxbgB0Gu7AuFXPCSgf9PTY"
         self.coordsOktoberfest = (48.131489099999996,11.549755214131313)
+        self.locationName = locationName
         if coords:
             self.coordsAirbnb = f"{coords[0]},{coords[1]}"
-            self.distance = self.calculateDistance(coords)
-            self.commute = self.calculateCommute(self.coordsAirbnb)
-        if homeLocation:
-            if homeLocation != "Showing 0 points of interest.":
-                self.coordsCalculated = self.calculateCoords(homeLocation) 
-                if self.coordsCalculated:
-                    self.distanceName = self.calculateDistance(self.coordsCalculated)
-                    self.commuteName = self.calculateCommute(homeLocation)
-
+        else:
+            self.coordsAirbnb = None
 
     def getDistance(self):
-        try:
-            return self.distance
-        except AttributeError:
-            return None
+        if self.coordsAirbnb:
+            distance = self.calculateDistance(self.coordsAirbnb)
+        else:
+            distance = None
+        return distance
 
     def getCommute(self):
-        try:
-            return self.commute
-        except AttributeError:
-            return None
+        if self.coordsAirbnb:
+            routes, times = self.calculateCommute(self.coordsAirbnb)
+        else:
+            routes, times = None, None
+        return routes, times
         
-    def getCommuteFromName(self):
-        try:
-            return self.commuteName
-        except AttributeError:
-            return None
-    
     def getDistanceFromName(self):
-        try:
-            return self.distanceName
-        except AttributeError:
-            return None
-    
-    def calculateCoords(self, homeLocation):
-        ctx = ssl.create_default_context(cafile=certifi.where())
-        options.default_user_agent = "my-test"
-        options.default_ssl_context = ctx
-        geolocator = Nominatim(user_agent="my-test")
-        try:
-            location = geolocator.geocode(f"{homeLocation}, Munich")
-            location = (location.latitude,location.longitude)
-            print(f"The calculated coords of {homeLocation} are ({location.latitude,location.longitude})")
-        except AttributeError:
-            location = None
-        return location
+        if self.locationName:
+            coordsName = self.calculateCoords(self.locationName)
+            distance = self.calculateDistance(coordsName)
+        else:
+            distance = None
+        return distance
 
     def calculateDistance(self, airbnb):
         distanceKm = geodesic(airbnb, self.coordsOktoberfest).km
-        print(f"The distance to Oktoberfest is {distanceKm}Km")
+        # print(f"The distance to Oktoberfest is {distanceKm}Km")
         distance = round(distanceKm, 2)
         if distanceKm > 10:
             distance = None
         return distance
+    
+    def calculateCoords(self, homeLocation):
+        name = f"{homeLocation}, Munich"
+        baseUrl = "https://maps.googleapis.com/maps/api/geocode/json"
+        params = {
+            "address": name,
+            "key": self.myKey,
+        }
+        response = requests.get(baseUrl, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            if data["status"] == "OK":
+                try:
+                    coords = data['results'][0]['geometry']['location']
+                except:
+                    coords = None
+                    locationCoords = None
+                if coords:
+                    locationCoords = (coords['lat'], coords['lng'])
+        return locationCoords 
 
     def calculateCommute(self, start):
         baseUrl = "https://maps.googleapis.com/maps/api/directions/json"
@@ -76,12 +72,14 @@ class Mapper:
         }
         response = requests.get(baseUrl, params=params)
         routes = []
+        times = []
         if response.status_code == 200:
             data = response.json()
             if data["status"] == "OK":
                 for route in data["routes"]:  
-                    routesIdx = 0
+                    idx = 0
                     routes = ["" for r in range(len(data["routes"]))]
+                    times = [0 for r in range(len(data["routes"]))]
                     for leg in route["legs"]:
                         for step in leg["steps"]:
                             if "transit_details" in step:
@@ -93,9 +91,10 @@ class Mapper:
                                 departure_stop = transit["departure_stop"]["name"]
                                 arrival_stop = transit["arrival_stop"]["name"]
                                 duration = step["duration"]["text"]
-                                routes[routesIdx] = routes[routesIdx]+(f"Take {line} from {departure_stop} to {arrival_stop} ({duration})\n")
-                    routesIdx += 1            
-                print(routes)
+                                durationInt = int(duration[0:-5])
+                                routes[idx] = routes[idx]+(f"Take {line} from {departure_stop} to {arrival_stop} ({duration})\n")
+                                times[idx] = times[idx] + durationInt
+                    idx += 1     
             else:
                 print(f"Error: {data}")
         else:
@@ -103,22 +102,7 @@ class Mapper:
     
         if len(routes) == 0:
             routes.append("No commute options, you can walk!")
-        return routes
+        return routes, times
 
-#* TESTS
-# map2 = Mapper(('48.1647', '11.5724'), "Schwabing-West")
-# map2.getDistance()
-# map2.getCommute()
-# map2.getCommuteFromName()
-
-# map3 = Mapper(('48.10996', '11.59264'), "Showing 0 points of interest.")
-# map3.getDistance()
-# map3.getCommute()
-# map3.getCommuteFromName()
-
-# map4 = Mapper(('48.10996', '11.59264'), "Showing 0 points of")
-# map4.getDistance()
-# map4.getCommute()
-# map4.getCommuteFromName()
 
 
