@@ -51,15 +51,11 @@ class Sender:
         else:
             self.msg.attach(MIMEText("<p>There were no local points of interest.</p>", 'html'))
 
-
     def attachCommute(self, property, start):
         if start:
             commutes = []
-            if type(start) != str:
-                start = "rough location"
-                commutes = property.getCommute()
-            else:
-                commutes = property.getCommuteName()
+            start = "rough location"
+            commutes = property.getCommute()
             if commutes:
                 if commutes[0] != "":
                     self.msg.attach(MIMEText(f"<p>How to get to Oktoberfest from {start}:</p>", 'html'))
@@ -90,8 +86,6 @@ class Sender:
                 name = property.getName()
                 self.attachLocation(property, distance, name)
                 self.attachCommute(property, distance)
-                if name:
-                    self.attachCommute(property, name)
                 idx += 1
 
     def sendEmail(self, emailTo):
