@@ -49,7 +49,7 @@ class Scraper:
         except Exception:
             print("There was no cookies popup")
     
-    def getLocation(self):
+    def getLocationName(self):
         location = None
         try:
             map = WebDriverWait(self.driver, self.longDelay).until(EC.presence_of_element_located((By.CLASS_NAME, '_1ctob5m')))
@@ -146,10 +146,10 @@ class Scraper:
                 screenshotPath = self.getScreenshot(idx)
                 price = self.getPrice()
                 total = self.getTotal()
-                location = self.getLocation()
+                locationName = self.getLocationName()
                 coords = self.getCoords()
-                properties.append(Property(url, price, total, coords, location, screenshotPath))
-                print(f"Price: {price} Total: {total} POI: {location} Coordinates: {coords}")
+                properties.append(Property(url, price, total, coords, locationName, screenshotPath))
+                print(f"Price: {price} Total: {total} POI: {locationName} Coordinates: {coords}")
                 idx = idx+1
         else:
             print("No listings matched your criteria")
