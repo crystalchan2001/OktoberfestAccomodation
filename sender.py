@@ -91,7 +91,7 @@ class Sender:
     def sendEmail(self, emailTo):
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls()
-        server.login("ilikecows3359@gmail.com", "ppdm eymb lfbs yirr")
+        server.login("ilikecows3359@gmail.com", "my token")
         server.sendmail("ilikecows3359@gmail.com", emailTo, self.msg.as_string())
         server.quit()
 
